@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "ingreso-egreso-c3928": {
+      "hosting": {
+        "ingreso-egreso": [
+          "ingreso-egreso-c3928"
+        ]
+      }
+    }
+  }
+}
