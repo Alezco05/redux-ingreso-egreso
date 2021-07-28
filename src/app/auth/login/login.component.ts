@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
 
     Swal.fire({
       title: 'Espere por favor',
-      onBeforeOpen: () => {
+      didOpen: () => {
         Swal.showLoading()
       }
     });
