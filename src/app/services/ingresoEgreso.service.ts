@@ -7,8 +7,9 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../app.reducer';
 import { Subscription } from 'rxjs';
 
-import { IngresoEgreso } from '../models/ingresoEgreso.model'
+import { IngresoEgreso } from '../models/ingresoEgreso.model';
 import { AuthService } from './auth.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -21,11 +22,24 @@ export class ingresoEgresoService {
     private authService: AuthService
   ) {}
 
-  crearIngresoEgreso(ingresoEgreso: IngresoEgreso){
-      const {uid} = this.authService.user;
-      return this.firestore.doc(`${uid}/ingresos-egresos`)
-                    .collection('items')
-                    .add({...ingresoEgreso});
-
+  crearIngresoEgreso(ingresoEgreso: IngresoEgreso) {
+    const { uid } = this.authService.user;
+    return this.firestore
+      .doc(`${uid}/ingresos-egresos`)
+      .collection('items')
+      .add({ ...ingresoEgreso });
+  }
+  initIngresosEgresosListener(uid: string) {
+    return this.firestore
+      .collection(`${uid}/ingresos-egresos/items`)
+      .snapshotChanges()
+      .pipe(
+        map((snapshot) =>
+          snapshot.map((doc) => ({
+            uid: doc.payload.doc.id,
+            ...(doc.payload.doc.data() as any),
+          }))
+        )
+      );
   }
 }
