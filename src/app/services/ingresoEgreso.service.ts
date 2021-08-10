@@ -24,6 +24,7 @@ export class ingresoEgresoService {
 
   crearIngresoEgreso(ingresoEgreso: IngresoEgreso) {
     const { uid } = this.authService.user;
+    delete ingresoEgreso.uid;
     return this.firestore
       .doc(`${uid}/ingresos-egresos`)
       .collection('items')
@@ -41,5 +42,9 @@ export class ingresoEgresoService {
           }))
         )
       );
+  }
+  borrarIngresoEgreso(uidItem: string){
+    const uid = this.authService.user.uid;
+    return this.firestore.doc(`${uid}/ingresos-egresos/items/${uidItem}`).delete();
   }
 }

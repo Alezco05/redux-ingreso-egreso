@@ -44,6 +44,8 @@ export class IngresoEgresoComponent implements OnInit, OnDestroy {
         this.ingresoForm.reset();
       })
       .catch((error) => Swal.fire('Error', error.message, 'error'));
+
+    this.store.dispatch(ui.stopLoading());
   }
   ngOnDestroy(){
     this.uiSubscription.unsubscribe();

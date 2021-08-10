@@ -9,13 +9,14 @@ import { Usuario } from '../models/usuario.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../app.reducer';
 import * as authActions from '../auth/auth.actions';
+import * as ingresoEgresoActions from '../ingreso-egreso/ingreso-egreso.actions';
 import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  subscription: Subscription;
+  userSubscription: Subscription;
   private _user: Usuario;
   get user() {
     return { ...this._user };
@@ -29,18 +30,21 @@ export class AuthService {
   initAuthListener() {
     this.auth.authState.subscribe((fuser) => {
       if (fuser) {
-        this.subscription = this.firestore
+        // existe
+        this.userSubscription = this.firestore
           .doc(`${fuser.uid}/usuario`)
           .valueChanges()
-          .subscribe((fireStoreUser: any) => {
-            const user = Usuario.fromFirebase(fireStoreUser);
+          .subscribe((firestoreUser: any) => {
+            const user = Usuario.fromFirebase(firestoreUser);
             this._user = user;
             this.store.dispatch(authActions.setUser({ user }));
           });
       } else {
+        // no existe
         this._user = null;
-        this.subscription.unsubscribe();
+        this.userSubscription && this.userSubscription.unsubscribe();
         this.store.dispatch(authActions.unSetUser());
+        this.store.dispatch(ingresoEgresoActions.unSetItems());
       }
     });
   }

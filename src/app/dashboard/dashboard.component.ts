@@ -1,31 +1,42 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { AppState } from '../app.reducer';
+import * as ingresoEgresoActions from '../ingreso-egreso/ingreso-egreso.actions';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { AppState } from '../app.reducer';
 import { ingresoEgresoService } from '../services/ingresoEgreso.service';
-import { setItems } from '../ingreso-egreso/ingreso-egreso.actions';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styles: []
+  styles: [],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  userSubs: Subscription;
+  ingresosSubs: Subscription;
 
-  subscription: Subscription;
-  constructor(private store: Store<AppState>, private ingresoEgresoService: ingresoEgresoService) { }
+  constructor(
+    private store: Store<AppState>,
+    private ingresoEgresoService: ingresoEgresoService
+  ) {}
 
   ngOnInit() {
-    this.subscription = this.store.select('auth')
-    .pipe(filter(x => x.user != null))
-    .subscribe(({user}) => this.ingresoEgresoService.initIngresosEgresosListener(user.uid).subscribe(
-      items => this.store.dispatch(setItems({items}))
-    ));
-
+    this.userSubs = this.store
+      .select('auth')
+      .pipe(filter((auth) => auth.user != null))
+      .subscribe(({ user }) => {
+        this.ingresosSubs = this.ingresoEgresoService
+          .initIngresosEgresosListener(user.uid)
+          .subscribe((ingresosEgresosFB) => {
+            this.store.dispatch(
+              ingresoEgresoActions.setItems({ items: ingresosEgresosFB })
+            );
+          });
+      });
   }
-  ngOnDestroy(){
-    this.subscription.unsubscribe();
-  }
 
+  ngOnDestroy() {
+    this.ingresosSubs.unsubscribe();
+    this.userSubs.unsubscribe();
+  }
 }
