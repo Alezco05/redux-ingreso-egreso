@@ -14,11 +14,15 @@ const routes: Routes = [
 
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
-    {
+/*     {
         path: '',
-        component: DashboardComponent,
         children: dashboardRoutes,
         canActivate: [ AuthGuard ]
+    }, */
+    {
+        path: '',
+        loadChildren: () => import('./dashboard/dashboard-routes.module').then(m => m.DashboardRoutesModule),
+        canLoad: [ AuthGuard ] 
     },
     { path: '**', redirectTo: '' }
 ];
